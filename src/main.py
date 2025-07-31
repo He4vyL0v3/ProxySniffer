@@ -10,13 +10,13 @@ proxy_mapping = {
     4: "SOCKS5"
 }
 
-def check_proxy(proxy, proxy_type, test_url="https://google.com/", timeout=1):
+def check_proxy(proxy, proxy_type, test_url="https://www.example.com/", timeout=1):
     """
     Checks the proxy's performance.
 
         :param proxy: string with IP:PORT, for example "190.13.147.93:5678"
     :param proxy_type: string 'HTTP', 'HTTPS', 'SOCKS4' or 'SOCKS5'
-    :param test_url: URL for checking availability (default google.com )
+    :param test_url: URL for checking availability (default https://www.example.com/ )
     :param timeout: timeout in seconds for the request
     :return: True if the proxy is working, otherwise False
     """
@@ -47,7 +47,6 @@ def check_proxies_multithread(proxies_list, proxy_type, max_workers=40):
                 if future.result():
                     working_proxies.append(proxy)
             except Exception as e:
-                # Можно логировать ошибки, если нужно
                 pass
 
     return working_proxies
