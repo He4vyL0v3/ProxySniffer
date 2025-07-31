@@ -130,16 +130,33 @@ def main():
     user_select = int(input("\033[0;35m[ SELECT A CATEGORY ] $ \033[0m"))
     list_limit = int(input("\033[0;35m[ ENTER LIMIT ] $  \033[0m"))
     
+    print("")
+    print("")
+    
     proxy_type = proxy_mapping.get(user_select, "Unknown")
     proxies = load_proxy(proxy_type)
-
-    working_proxies = []
 
     limited_proxies = proxies[:list_limit]
 
     working_proxies = check_proxies_multithread(proxies_list=limited_proxies, proxy_type=proxy_type)
 
-    print(working_proxies)
+    print("")
+    print(" 1 - Save to file")
+    print(" 2 - Print to console")
+    user_option = int(input("\033[0;35m[ SELECT AN OPTION ] $ \033[0m"))
+
+    if user_option == 2:
+        for ip in working_proxies:
+            print(ip)
+
+    if user_option == 1:
+        text = ""
+
+        for ip in working_proxies:
+            text += f"{ip}\n"
+            with open("proxies.txt", 'w') as file:
+                file.write(text)
+                file.close()
 
 if __name__ == "__main__":
     main()

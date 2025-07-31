@@ -1,1 +1,3 @@
 venv/
+src/proxies.txt
+src/__pycache__
