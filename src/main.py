@@ -10,7 +10,7 @@ proxy_mapping = {
     4: "SOCKS5"
 }
 
-def check_proxy(proxy, proxy_type, test_url="https://google.com/", timeout=5):
+def check_proxy(proxy, proxy_type, test_url="https://google.com/", timeout=1):
     """
     Checks the proxy's performance.
 
@@ -27,7 +27,7 @@ def check_proxy(proxy, proxy_type, test_url="https://google.com/", timeout=5):
     except Exception as e:
         return False
     
-def check_proxies_multithread(proxies_list, proxy_type, max_workers=20):
+def check_proxies_multithread(proxies_list, proxy_type, max_workers=40):
     """
     Checks the proxy list multithreadedly.
 
