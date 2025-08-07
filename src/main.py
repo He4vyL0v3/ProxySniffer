@@ -112,7 +112,7 @@ class ProxyCheckerApp(ctk.CTk):
             if limit <= 0:
                 self.update_status("Invalid limit value", "red")
                 return
-        except:
+        except ValueError:
             self.update_status("Invalid limit value", "red")
             return
 
@@ -176,7 +176,7 @@ class ProxyCheckerApp(ctk.CTk):
                 response = requests.get(url=link, timeout=10)
                 if response.status_code == 200:
                     proxies.extend(response.text.strip().splitlines())
-            except Exception as e:
+            except Exception as _:
                 pass
 
             progress = (i + 1) / total
@@ -201,8 +201,9 @@ class ProxyCheckerApp(ctk.CTk):
                 try:
                     if future.result():
                         working_proxies.append(proxy)
-                except:
-                    pass
+                except TimeoutError:
+                        pass
+
 
                 processed += 1
                 progress = processed / total
@@ -218,7 +219,7 @@ class ProxyCheckerApp(ctk.CTk):
         try:
             response = requests.get(test_url, proxies=proxies, timeout=timeout)
             return response.status_code == 200
-        except:
+        except (TimeoutError, ConnectionError):
             return False
 
     def build_proxies(self, proxy_address, proxy_type):
