@@ -1,25 +1,29 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import requests
-from tqdm import tqdm
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import requests
+from tqdm import tqdm
+
 from links import proxy_HTTP, proxy_HTTPS, proxy_SOCKS4, proxy_SOCKS5
 
 proxy_mapping = {1: "HTTP", 2: "HTTPS", 3: "SOCKS4", 4: "SOCKS5"}
 
+
 class ProxyChecker:
     def __init__(self):
         self.working_proxies = []
-        self.test_url = "https://www.example.com/"
-        self.timeout = 5
-        self.max_workers = 50
+        self.test_url = "https://google.com/"
+        self.timeout = 10
+        self.max_workers = 150
 
     def check_proxy(self, proxy, proxy_type):
         proxies = self.build_proxies(proxy, proxy_type)
         try:
             start_time = time.time()
-            response = requests.get(self.test_url, proxies=proxies, 
-                                  timeout=self.timeout, verify=False)
+            response = requests.get(
+                self.test_url, proxies=proxies, timeout=self.timeout, verify=False
+            )
             response_time = round((time.time() - start_time) * 1000)  # в мс
             if response.status_code == 200:
                 return True, response_time
@@ -42,7 +46,7 @@ class ProxyChecker:
                 total=len(proxies_list),
                 desc="\033[34m[*] Checking proxies\033[0m",
                 bar_format="\033[92m{l_bar}{bar}{r_bar}\033[0m",
-                unit="proxy"
+                unit="proxy",
             ):
                 proxy = future_to_proxy[future]
                 try:
@@ -89,7 +93,7 @@ class ProxyChecker:
             sources,
             desc="\033[34m[*] Downloading proxies\033[0m",
             bar_format="\033[92m{l_bar}{bar}{r_bar}\033[0m",
-            unit="source"
+            unit="source",
         ):
             try:
                 response = requests.get(link, timeout=10)
@@ -100,8 +104,9 @@ class ProxyChecker:
 
         return list(set(proxies))
 
+
 def print_banner():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
     print("\033[1;35m")
     print("")
     print("")
@@ -115,28 +120,30 @@ def print_banner():
     print("           PROXY CHECKER TOOL - By Nighty3098")
     print("=" * 65 + "\033[0m")
 
+
 def main_menu():
     print("\n\033[1;33m[1] HTTP Proxy")
     print("[2] HTTPS Proxy")
     print("[3] SOCKS4 Proxy")
     print("[4] SOCKS5 Proxy\033[0m")
     print("\033[1;31m[0] Exit\033[0m")
-    
+
     try:
         choice = int(input("\n\033[1;35m[SELECT OPTION] > \033[0m"))
         return choice
     except ValueError:
         return -1
 
+
 def main():
     requests.packages.urllib3.disable_warnings()
-    
+
     checker = ProxyChecker()
-    
+
     while True:
         print_banner()
         choice = main_menu()
-        
+
         if choice == 0:
             print("\n\033[1;31m[!] Exiting...\033[0m")
             break
@@ -144,9 +151,9 @@ def main():
             print("\n\033[1;31m[!] Invalid option!\033[0m")
             time.sleep(1)
             continue
-        
+
         proxy_type = proxy_mapping[choice]
-        
+
         try:
             print_banner()
             list_limit = int(input("\n\033[1;35m[PROXY LIMIT] > \033[0m"))
@@ -154,36 +161,36 @@ def main():
             print("\n\033[1;31m[!] Invalid number!\033[0m")
             time.sleep(1)
             continue
-        
+
         print_banner()
         print(f"\n\033[1;34m[*] Loading {proxy_type} proxies...\033[0m")
         proxies = checker.load_proxies(proxy_type)
-        
+
         if not proxies:
             print("\n\033[1;31m[!] No proxies loaded from sources!\033[0m")
             time.sleep(2)
             continue
-        
+
         proxies = proxies[:list_limit]
         print(f"\033[1;32m[+] Loaded {len(proxies)} proxies\033[0m")
-        
+
         print(f"\033[1;34m[*] Checking {proxy_type} proxies...\033[0m")
         results = checker.check_proxies_multithread(proxies, proxy_type)
-        
+
         print(f"\n\033[1;32m[+] Found {len(results)} working proxies\033[0m")
-        
+
         print("\n\033[1;36m[1] Save to file")
         print("[2] Show in console")
         print("[3] Back to main menu\033[0m")
-        
+
         try:
             output_choice = int(input("\n\033[1;35m[OUTPUT OPTION] > \033[0m"))
         except ValueError:
             output_choice = 3
-        
+
         if output_choice == 1:
             filename = f"working_{proxy_type.lower()}_proxies.txt"
-            with open(filename, 'w') as f:
+            with open(filename, "w") as f:
                 for proxy, response_time in results:
                     f.write(f"{proxy} | {response_time}ms\n")
             print(f"\n\033[1;32m[+] Results saved to {filename}\033[0m")
@@ -195,6 +202,7 @@ def main():
             for proxy, response_time in results:
                 print(f"\033[1;32m{proxy} | {response_time}ms\033[0m")
             input("\nPress Enter to continue...")
+
 
 if __name__ == "__main__":
     main()
